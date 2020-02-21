@@ -29,6 +29,49 @@ export default function App() {
   const [users, setUsers] = React.useState([])
   const [message, setMessage] = React.useState(null)
   const [creating, setCreating] = React.useState(false)
+  const [editing, setEditing] = React.useState(false)
+  const [activeUser, setActiveUser] = React.useState(null)
+
+  const handleEdit = row => {
+    setActiveUser(row)
+    setEditing(true)
+  }
+
+  const handleUpdate = async fields => {
+    try {
+      const res = await fetch(`${API_URL}/users/${activeUser.id}`, {
+        method: 'PATCH',
+        headers: defaultHeaders,
+        body: JSON.stringify(fields),
+      })
+
+      if (res.status === 200) {
+        const updatedUser = await res.json()
+        setUsers(
+          users.map(user => {
+            if (user.id === activeUser.id) {
+              return updatedUser
+            }
+
+            return user
+          }),
+        )
+
+        setEditing(false)
+        setMessage({
+          message: 'User successfuly updated!',
+          severity: 'success',
+        })
+      } else {
+        throw new Error('Cannot update User!')
+      }
+    } catch (error) {
+      setMessage({
+        message: error.message,
+        severity: 'error',
+      })
+    }
+  }
 
   const handleCreate = async fields => {
     try {
@@ -39,14 +82,7 @@ export default function App() {
       })
 
       if (res.status === 201) {
-        const data = await res.json()
-        const newUser = {
-          id: data.id,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          email: data.email,
-          created_at: data.createdAt,
-        }
+        const newUser = await res.json()
         setUsers([newUser].concat(users.splice(0, users.length - 1)))
 
         setCreating(false)
@@ -86,20 +122,6 @@ export default function App() {
     } catch (error) {
       setMessage({
         message: error.message,
-        severity: 'error',
-      })
-    }
-  }
-
-  const findUser = async id => {
-    const res = await fetch(API_URL + '/users/' + id)
-
-    if (res.status === 200) {
-      const collection = await res.json()
-      return collection.data
-    } else {
-      setMessage({
-        message: 'Cannot fetch users, please try again.',
         severity: 'error',
       })
     }
@@ -158,17 +180,32 @@ export default function App() {
             ...user,
             name: `${user.first_name || ''} ${user.last_name || ''}`,
           }))}
+          onEdit={handleEdit}
           onDelete={handleDelete}
         />
       </Container>
       {message && <Snackbar open {...message} />}
+      {editing && (
+        <FormDialog
+          open
+          onSave={handleUpdate}
+          title="Update a User"
+          defaultValues={{
+            first_name: activeUser.first_name || '',
+            last_name: activeUser.last_name || '',
+            email: activeUser.email || '',
+          }}
+          onClose={() => setEditing(false)}
+        />
+      )}
       {creating && (
         <FormDialog
           open
           onSave={handleCreate}
+          title="Create a New User"
           defaultValues={{
-            firstName: '',
-            lastName: '',
+            first_ame: '',
+            last_name: '',
             email: '',
           }}
           onClose={() => setCreating(false)}

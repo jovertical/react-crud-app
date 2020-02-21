@@ -15,11 +15,17 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default function Form({ defaultValues, onClose, onSave, ...props }) {
+export default function Form({
+  title,
+  defaultValues,
+  onClose,
+  onSave,
+  ...props
+}) {
   const styles = useStyles()
   const [open, setOpen] = React.useState(props.open || false)
-  const [firstName, setFirstName] = React.useState(defaultValues.firstName)
-  const [lastName, setLastName] = React.useState(defaultValues.lastName)
+  const [firstName, setFirstName] = React.useState(defaultValues.first_name)
+  const [lastName, setLastName] = React.useState(defaultValues.last_name)
   const [email, setEmail] = React.useState(defaultValues.email)
 
   const handleClose = () => {
@@ -34,7 +40,7 @@ export default function Form({ defaultValues, onClose, onSave, ...props }) {
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Create a New User</DialogTitle>
+        <DialogTitle id="form-dialog-title">{title}</DialogTitle>
         <DialogContent className={styles.dialog}>
           <Box mb={1}>
             <TextField
@@ -75,7 +81,10 @@ export default function Form({ defaultValues, onClose, onSave, ...props }) {
             Cancel
           </Button>
           <Button
-            onClick={() => onSave && onSave({ firstName, lastName, email })}
+            onClick={() =>
+              onSave &&
+              onSave({ first_name: firstName, last_name: lastName, email })
+            }
             color="primary"
           >
             Save
@@ -87,10 +96,11 @@ export default function Form({ defaultValues, onClose, onSave, ...props }) {
 }
 
 Form.propTypes = {
+  title: PropTypes.string,
   open: PropTypes.bool,
   defaultValues: PropTypes.shape({
-    firstName: PropTypes.string,
-    lastName: PropTypes.string,
+    first_name: PropTypes.string,
+    last_name: PropTypes.string,
     email: PropTypes.string,
   }),
   onClose: PropTypes.func,

@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-export default function MyTable({ properties, data, onDelete }) {
+export default function MyTable({ properties, data, onEdit, onDelete }) {
   const classes = useStyles()
 
   return (
@@ -55,7 +55,7 @@ export default function MyTable({ properties, data, onDelete }) {
                 ))}
 
                 <TableCell align="right">
-                  <IconButton>
+                  <IconButton onClick={() => onEdit && onEdit(row)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton onClick={() => onDelete && onDelete(row)}>
@@ -78,5 +78,6 @@ MyTable.propTypes = {
     }),
   ).isRequired,
   data: PropTypes.array.isRequired,
+  onEdit: PropTypes.func,
   onDelete: PropTypes.func,
 }
