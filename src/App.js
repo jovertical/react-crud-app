@@ -23,11 +23,44 @@ export default function App() {
   const [users, setUsers] = React.useState([])
   const [message, setMessage] = React.useState(null)
 
-  const handleDelete = row => {
-    setMessage({
-      message: 'User successfuly deleted:' + row.id,
-      severity: 'success',
-    })
+  const handleDelete = async row => {
+    try {
+      const res = await fetch(`${API_URL}/users/${row.id}`, {
+        method: 'DELETE',
+      })
+
+      if (res.status === 204) {
+        setMessage({
+          message: 'User successfuly deleted!',
+          severity: 'success',
+        })
+      } else {
+        throw new Error('Cannot delete user!')
+      }
+    } catch (error) {
+      setMessage({
+        severity: 'error',
+      })
+    }
+  }
+
+  const fetchUsers = async () => {
+    const res = await fetch(API_URL + '/users?per_page=5')
+
+    if (res.status === 200) {
+      const collection = await res.json()
+      const data = collection.data.map(user => ({
+        name: `${user.first_name} ${user.last_name}`,
+        ...user,
+      }))
+
+      setUsers(data)
+    } else {
+      setMessage({
+        message: 'Cannot fetch users, please try again.',
+        severity: 'error',
+      })
+    }
   }
 
   React.useEffect(() => {
@@ -43,26 +76,7 @@ export default function App() {
   }, [message])
 
   React.useEffect(() => {
-    const bootstrap = async () => {
-      const res = await fetch(API_URL + '/users?per_page=5')
-
-      if (res.status === 200) {
-        const collection = await res.json()
-        const data = collection.data.map(user => ({
-          name: `${user.first_name} ${user.last_name}`,
-          ...user,
-        }))
-
-        setUsers(data)
-      } else {
-        setMessage({
-          message: 'Cannot fetch users, please try again.',
-          severity: 'error',
-        })
-      }
-    }
-
-    bootstrap()
+    fetchUsers()
   }, [])
 
   return (

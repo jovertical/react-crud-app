@@ -23,7 +23,11 @@ export default function Snackbar({ message, severity, ...props }) {
   }, [props.open])
 
   return (
-    <MuiSnackbar open={open} onClose={handleClose}>
+    <MuiSnackbar
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      open={open}
+      onClose={handleClose}
+    >
       {severity && (
         <Alert onClose={handleClose} severity={severity}>
           {message}
