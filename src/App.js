@@ -73,6 +73,9 @@ export default function App() {
       })
 
       if (res.status === 204) {
+        const filtered = users.filter(user => user.id !== row.id)
+        setUsers(filtered)
+
         setMessage({
           message: 'User successfuly deleted!',
           severity: 'success',
@@ -83,6 +86,20 @@ export default function App() {
     } catch (error) {
       setMessage({
         message: error.message,
+        severity: 'error',
+      })
+    }
+  }
+
+  const findUser = async id => {
+    const res = await fetch(API_URL + '/users/' + id)
+
+    if (res.status === 200) {
+      const collection = await res.json()
+      return collection.data
+    } else {
+      setMessage({
+        message: 'Cannot fetch users, please try again.',
         severity: 'error',
       })
     }
